@@ -26,17 +26,6 @@
         <input type="button" name="addInput" id="addInput" value="Add">
     </form><br><br>
     <?php echo $_POST["nameInput"]; ?>
-    <table>
-        <tr>
-            <?php
-            foreach ($data->content->ths as $th) {
-                ?>
-                <th> <?= $th ?></th>
-                <?php
-            }
-            ?>
-        </tr>
-
     
 <?php
 
@@ -45,7 +34,7 @@
     $file = fopen($filename, "w+") or die("Unable to open file!");
     $date = date("d.m.Y H:i:s");
     $name = "Jozko";
-    $prichody = [getArray($name, $date), getArray("Ferko", date("d.m.Y 7:53:26")), getArray("Jozko2", date("17.11.2022 8:05:54"))];
+    $prichody = [getArray($name, $date), getArray("Ferko", date("d.m.Y 7:53:26")), getArray("Jozko", date("17.11.2022 8:05:54")), getArray("Jozko", date("19.11.2022 21:00:00"))];
     fwrite($file, json_encode($prichody));
     $json_data = file_get_contents($filename);
     $data = json_decode($json_data);
@@ -67,21 +56,25 @@
     }
 
     function display($data) {
-        $temp = "<span class='data'>";
+        $temp = "";
         for ($i = 0; $i < count($data); $i++) {
-            for($j = 0; $j < count($data[$i]); $j++) {
-                $temp = $temp . $data[$i][$j]."  ";
+            $temp = $temp . $data[$i][0] . " - ";
+            $temp = $temp . $data[$i][1] . "  ";
+            switch($data[$i][2]) {
+                case "": break;
+                case "INVALID": $temp .= "(<span style='color:Red;'><b>Invalid Time!</b></span>)"; break;
+                default: $temp .= "(<span style='color:Tomato;'>Delay: " . $data[$i][2] . "</span>)"; break;
             }
-            $temp = $temp . "<br>";
+            $temp .= "<br>";
         }
-        echo $temp . "</span>";
+        echo $temp;
     }
 
     function getDelay($date) {
         $unixTime = strtotime($date);
         if(date('H', $unixTime) >= 8) {
-            if(date('H', $unixTime) > 20) return "<span style='color:Red;'><b> Invalid Time!</b></span>";
-            return "<span style='color:Tomato;'> Delay: " . date("H:i:s", $unixTime - strtotime(date('d.m.Y 9:00:00', $unixTime))) . "</span>"; //time - 8h
+            if(date('H', $unixTime) > 20) return "INVALID";
+            return date("H:i:s", $unixTime - strtotime(date('d.m.Y 9:00:00', $unixTime))); //time - 8h
         } else return "";
     }
 
